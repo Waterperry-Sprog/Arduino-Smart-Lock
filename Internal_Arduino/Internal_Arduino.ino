@@ -3,6 +3,8 @@ int unlockButton = 2;
 int lockButton = 3;
 int unlockDoor(void);
 int lockDoor(void);
+volatile long interruptTime;
+volatile long lastInterruptTime;
 
 
 
@@ -19,12 +21,19 @@ void loop() {
 }
 
 int unlockDoor(void) {
-  //Servo.write(unlockPosition);
-  //
-  digitalWrite(LED_BUILTIN,HIGH);
+  interruptTime = millis();
+  if(lastInterruptTime < interruptTime - 400){
+    //Servo.write(unlockPosition);
+    //
+    digitalWrite(LED_BUILTIN,HIGH); 
+    lastInterruptTime = interruptTime;
+  }
 }
 
 int lockDoor(void) {
-  //Servo.write(lockPosition);
-  digitalWrite(LED_BUILTIN,LOW);
+  if(lastInterruptTime < interruptTime - 400){
+    //Servo.write(lockPosition);
+    digitalWrite(LED_BUILTIN,LOW);
+    lastInterruptTime = interruptTime;
+  }
 }
