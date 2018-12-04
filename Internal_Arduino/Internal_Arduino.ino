@@ -15,10 +15,6 @@ volatile long interruptTime;
 volatile long lastInterruptTime;
 Servo lockServo;
 
-
-
-
-
 void setup() {
   // put your setup code here, to run once:
   attachInterrupt(digitalPinToInterrupt(lockButton), unlockDoor, FALLING);
@@ -30,9 +26,6 @@ void setup() {
 }
 
 void loop() {
-
-
-
   if(Serial.available() > 0) {
     incomingByte = Serial.read();
     if(incomingByte == 'R'){
@@ -40,6 +33,7 @@ void loop() {
       delay(500);
       tone(buzzerPin,450,500);
     }
+    //if(0-->9) do ...
     else if(incomingByte == '#'){
       for(int i = 0; i<5; i++){
         if(passInput[i]!=passcode[i]){
@@ -48,8 +42,19 @@ void loop() {
       }
       passwordCorrect = 1;
     }
+    else if(incomingByte == '*'){
+      for(int x=0; x<5; x++){
+        passInput[x]='\0';
+      }
+      Serial.write("C");
+    }
   }
 
+  if(passwordCorrect == 1){
+    unlockDoor();
+    delay(1000);
+    passwordCorrect = 0;
+  }
 }
 
 int unlockDoor(void) {
