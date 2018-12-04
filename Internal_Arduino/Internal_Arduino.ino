@@ -6,14 +6,19 @@ const int unlockPosition = 180;
 const int lockPosition = 0;
 const int buzzerPin = 4;
 byte incomingByte;
-int passwordCorrect = 0;
 
 int unlockDoor(void);
 int lockDoor(void);
 
+const int passLength = 4;
+const char passcode[passLength] = {'5', '2', '3', '8'};
+char passInput[passLength] {'\0', '\0', '\0', '\0'};
+int freeCell = -1;
+
 volatile long interruptTime;
 volatile long lastInterruptTime;
 Servo lockServo;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -32,29 +37,34 @@ void loop() {
       tone(buzzerPin,600);
       delay(500);
       tone(buzzerPin,450,500);
-    }
-    //if(0-->9) do ...
-    else if(incomingByte == '#'){
-      for(int i = 0; i<5; i++){
-        if(passInput[i]!=passcode[i]){
+    } else if (incomingByte >= 48 && incomingByte <= 57) {
+      int j = 0;
+      freeCell = -1;
+      for (int i = 0; i < passLength; i++) {
+        if (passInput[i] == '\0') {
+          freeCell = i;
           break;
         }
       }
-      passwordCorrect = 1;
-    }
-    else if(incomingByte == '*'){
-      for(int x=0; x<5; x++){
-        passInput[x]='\0';
+      if (freeCell == -1) {
+        // cells full
+      } else {
+        passInput[freeCell] = incomingByte;
+        for (int i = 0; i < passLength; i++) {
+          if (passInput[i] != '\0') {
+          }
+        }
       }
-      Serial.write("C");
+    } else if (incomingByte == '*') {
+      passInput[0] = '\0'; passInput[1] = '\0';
+      passInput[2] = '\0'; passInput[3] = '\0';
+    } else if (incomingByte == '#') {
+      if (strcmp(passcode, passInput)) {
+        unlockDoor(); // unlock door when code correct
+      }
     }
   }
 
-  if(passwordCorrect == 1){
-    unlockDoor();
-    delay(1000);
-    passwordCorrect = 0;
-  }
 }
 
 int unlockDoor(void) {
