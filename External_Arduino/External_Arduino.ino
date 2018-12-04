@@ -7,6 +7,7 @@ const int ringButton = 2;
 volatile long interruptTime;
 volatile long lastInterruptTime;
 int incomingByte;
+int passwordLen = 0;
 
 //set up the lcd
 LiquidCrystal lcd(7,8,9,10,11,12);
@@ -29,7 +30,7 @@ Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS
 void setup() {
   Serial.begin(9600);
   lcd.begin(16,2);
-
+  
   digitalWrite(ledRed, HIGH);
   attachInterrupt(0, ringPress, FALLING);
   for(int i=7;i<=12;i++){
@@ -45,25 +46,40 @@ void loop() {
   if (customKey) {
     Serial.write(customKey);
   }
+  if (customKey=='*'||customKey=='#'){
+    clearPasswordDisplay();
+  }
+  else if (customKey >=48 && customKey <= 57){
+    passwordLen+=1;
+    lcd.setCursor(10+passwordLen,0);
+    lcd.print("*");
+  }
 
   // check incoming serial data
   if (Serial.available() > 0 ) {
     incomingByte = Serial.read();
     if (incomingByte == 'H') {
+      
       lcd.setCursor(0,1);
       lcd.print("Door unlocked.  ");    //added spaces to ensure remaining space doesnt contain unwanted chars
+      clearPasswordDisplay();
+      
       digitalWrite(ledGreen, HIGH);
       digitalWrite(ledRed, LOW);
     }
 
     if (incomingByte == 'L') {
+      
       lcd.setCursor(0,1);
       lcd.print("Door locked.    ");
+      
       digitalWrite(ledRed, HIGH);
       digitalWrite(ledGreen, LOW);
     }
   }
-  lcd.setCursor(0,1);
+  if(passwordLen>=4){
+    passwordLen=0;
+  }
 }
 
 void ringPress() {
@@ -72,4 +88,10 @@ void ringPress() {
     Serial.write("R");
     lastInterruptTime = interruptTime;
   }
+}
+
+void clearPasswordDisplay(void){
+  lcd.setCursor(10,0);
+  lcd.write("     ");
+  passwordLen = 0;
 }
