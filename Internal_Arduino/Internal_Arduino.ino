@@ -6,6 +6,7 @@ const int unlockPosition = 180;
 const int lockPosition = 0;
 const int buzzerPin = 4;
 byte incomingByte;
+int passwordCorrect = 0;
 
 int unlockDoor(void);
 int lockDoor(void);
@@ -38,6 +39,14 @@ void loop() {
       tone(buzzerPin,600);
       delay(500);
       tone(buzzerPin,450,500);
+    }
+    else if(incomingByte == '#'){
+      for(int i = 0; i<5; i++){
+        if(passInput[i]!=passcode[i]){
+          break;
+        }
+      }
+      passwordCorrect = 1;
     }
   }
 
