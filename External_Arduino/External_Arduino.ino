@@ -2,7 +2,7 @@
 #include <Keypad.h>
 
 const int ledGreen = 4;
-const int ledRed = 5;   
+const int ledRed = 5;
 const int ringButton = 2;
 volatile long interruptTime;
 volatile long lastInterruptTime;
@@ -23,13 +23,13 @@ char hexaKeys[ROWS][COLS] = {
 };
 byte rowPins[ROWS] = {3, 6, 13, A5}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {A4, A3, A2, A1}; //connect to the column pinouts of the keypad
-Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
+Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 
 void setup() {
   Serial.begin(9600);
   lcd.begin(16,2);
-  
+
   digitalWrite(ledRed, HIGH);
   attachInterrupt(0, ringPress, FALLING);
   for(int i=7;i<=12;i++){
@@ -45,7 +45,7 @@ void loop() {
   if (customKey) {
     Serial.write(customKey);
   }
-  
+
   // check incoming serial data
   if (Serial.available() > 0 ) {
     incomingByte = Serial.read();
@@ -58,7 +58,7 @@ void loop() {
 
     if (incomingByte == 'L') {
       lcd.setCursor(0,1);
-      lcd.print("Door locked.    "); 
+      lcd.print("Door locked.    ");
       digitalWrite(ledRed, HIGH);
       digitalWrite(ledGreen, LOW);
     }
