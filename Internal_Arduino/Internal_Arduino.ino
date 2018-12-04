@@ -15,6 +15,9 @@ volatile long lastInterruptTime;
 Servo lockServo;
 
 
+
+
+
 void setup() {
   // put your setup code here, to run once:
   attachInterrupt(digitalPinToInterrupt(lockButton), unlockDoor, FALLING);
@@ -26,6 +29,9 @@ void setup() {
 }
 
 void loop() {
+
+
+
   if(Serial.available() > 0) {
     incomingByte = Serial.read();
     if(incomingByte == 'R'){
