@@ -6,8 +6,7 @@ const int ledRed = 5;
 const int ringButton = 2;
 volatile long interruptTime;
 volatile long lastInterruptTime;
-int incomingByte;
-int passwordLen = 0;
+int pinLength = 0;
 
 //set up the lcd
 LiquidCrystal lcd(7,8,9,10,11,12);
@@ -28,61 +27,68 @@ Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS
 
 
 void setup() {
-  Serial.begin(9600);
-  lcd.begin(16,2);
-  
-  digitalWrite(ledRed, HIGH);
+  // set up the pins 
+  pinMode(iledRed, OUTPUT);
   attachInterrupt(0, ringPress, FALLING);
   for(int i=7;i<=12;i++){
     pinMode(i,OUTPUT);
   }
+  // light up red LED as default light
+  digitalWrite(ledRed, HIGH);
+  // set up the LCD screen
+  lcd.begin(16,2);
   lcd.setCursor(0,0);
   lcd.print("Welcome!");
+  // initialize the serial connection
+  Serial.begin(9600);
 }
 
 void loop() {
-
+  // check if a key has been pressed
+  // if it has, send it over to the internal arduino
   char customKey = customKeypad.getKey();
   if (customKey) {
     Serial.write(customKey);
-  }
-  if (customKey=='*'||customKey=='#'){
-    clearPasswordDisplay();
-  }
-  else if (customKey >=48 && customKey <= 57){
-    passwordLen+=1;
-    lcd.setCursor(10+passwordLen,0);
-    lcd.print("*");
+    // display pin progress on LCD
+    // either add a * to the top right or clear that area
+    if (customKey=='*'||customKey=='#'){
+      clearPasswordDisplay();
+    }
+    else if (customKey >=48 && customKey <= 57){
+      pinLength+=1;
+      lcd.setCursor(10+pinLength,0);
+      lcd.print("*");
+    }
   }
 
-  // check incoming serial data
+  // if there is data in the serial connection, use it
   if (Serial.available() > 0 ) {
-    incomingByte = Serial.read();
-    if (incomingByte == 'H') {
-      
+    byte incomingByte = Serial.read();
+    if (incomingByte == 'U') {
+      // this is the unlock signal, so turn we turn
+      // on the green LED and write it on the LCD
       lcd.setCursor(0,1);
       lcd.print("Door unlocked.  ");    //added spaces to ensure remaining space doesnt contain unwanted chars
       clearPasswordDisplay();
-      
       digitalWrite(ledGreen, HIGH);
       digitalWrite(ledRed, LOW);
-    }
-
-    if (incomingByte == 'L') {
-      
+    } else if (incomingByte == 'L') {
+      // this is the lock signal, so we change the
+      // LCD display again and switch the LED to red
       lcd.setCursor(0,1);
       lcd.print("Door locked.    ");
-      
       digitalWrite(ledRed, HIGH);
       digitalWrite(ledGreen, LOW);
     }
   }
-  if(passwordLen>=4){
-    passwordLen=0;
+  if(pinLength>=4){
+    // reset the pin if it is longer than it is supposed to be
+    pinLength=0;
   }
 }
 
 void ringPress() {
+  // interrupt function, sends a simple signal ro ring on the internal arduino
   interruptTime = millis();
   if (lastInterruptTime < interruptTime - 400) {
     Serial.write("R");
@@ -91,7 +97,8 @@ void ringPress() {
 }
 
 void clearPasswordDisplay(void){
+  // removes the pin on the LCD
   lcd.setCursor(10,0);
   lcd.write("     ");
-  passwordLen = 0;
+  pinLength = 0;
 }
