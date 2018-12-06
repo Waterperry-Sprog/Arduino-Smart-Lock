@@ -6,7 +6,8 @@ const int ledRed = 5;
 const int ringButton = 2;
 volatile long interruptTime;
 volatile long lastInterruptTime;
-int pinLength = 0;
+const int pinLength = 4;
+int curPinLength = 0;
 
 //set up the lcd
 LiquidCrystal lcd(7,8,9,10,11,12);
@@ -52,11 +53,11 @@ void loop() {
     // display pin progress on LCD
     // either add a * to the top right or clear that area
     if (customKey=='*'||customKey=='#'){
-      clearPasswordDisplay();
+      clearPinDisplay();
     }
     else if (customKey >=48 && customKey <= 57){
-      pinLength+=1;
-      lcd.setCursor(10+pinLength,0);
+      curPinLength+=1;
+      lcd.setCursor(10+curPinLength,0);
       lcd.print("*");
     }
   }
@@ -69,7 +70,7 @@ void loop() {
       // on the green LED and write it on the LCD
       lcd.setCursor(0,1);
       lcd.print("Door unlocked.  ");    //added spaces to ensure remaining space doesnt contain unwanted chars
-      clearPasswordDisplay();
+      clearPinDisplay();
       digitalWrite(ledGreen, HIGH);
       digitalWrite(ledRed, LOW);
     } else if (incomingByte == 'L') {
@@ -81,9 +82,9 @@ void loop() {
       digitalWrite(ledGreen, LOW);
     }
   }
-  if(pinLength>=4){
+  if(curPinLength>=pinLength){
     // reset the pin if it is longer than it is supposed to be
-    pinLength=0;
+    curPinLength=0;
   }
 }
 
@@ -96,9 +97,9 @@ void ringPress() {
   }
 }
 
-void clearPasswordDisplay(void){
+void clearPinDisplay(void){
   // removes the pin on the LCD
   lcd.setCursor(10,0);
   lcd.write("     ");
-  pinLength = 0;
+  curPinLength = 0;
 }
