@@ -73,7 +73,16 @@ void loop() {
       pinInput[2] = '\0'; pinInput[3] = '\0';
     } else if (incomingByte == '#') {
       // if the pin matches, unlock the door
-      if (strcmp(pincode, pinInput)) {
+      boolean correct = false;
+      for (int i = 0; i < pinLength; i++) {
+        if (pinInput[i] == pin[i]) {
+          correct = true;
+        } else {
+          correct = false;
+          break;
+        }
+      }
+      if (correct) {
         unlockDoor();
       }
     }
