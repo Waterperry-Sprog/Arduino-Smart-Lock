@@ -84,6 +84,8 @@ void loop() {
       }
       if (correct) {
         unlockDoor();
+        pinInput[0] = '\0'; pinInput[1] = '\0';
+        pinInput[2] = '\0'; pinInput[3] = '\0';
       }
     }
   }
